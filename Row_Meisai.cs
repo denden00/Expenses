@@ -11,5 +11,6 @@ namespace Expenses
         public string Date { get; set; }
         public string Detail { get; set; }
         public string Price { get; set; }
+        public int Category { get; set; }
     }
 }
