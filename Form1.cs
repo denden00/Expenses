@@ -22,6 +22,15 @@ namespace Expenses
         public readonly int DENKIDAI = 3;
         public readonly int KOUTUUHI = 4;
         public readonly int OTHER = 99;
+        public readonly Dictionary<int,string> CategoryPairs = new Dictionary<int, string>
+        {
+            {0, "食費" },
+            { 1, "日用品" },
+            { 2, "携帯代" },
+            { 3, "電気代" },
+            { 4, "交通費" },
+            { 99, "その他" },
+        };
 
         public Form1()
         {
@@ -55,6 +64,7 @@ namespace Expenses
         /// <param name="e"></param>
         private void InputMeisai_Click(object sender, EventArgs e)
         {
+            string log="";
             ErrorMessage.Visible = false;
 
             if (!(Check_Input()))
@@ -71,35 +81,64 @@ namespace Expenses
             {
                 //ここでSBIかJCBかの判定を行う　↓はSBIのパターン
 
-                //SBIパターン
-                parser.TextFieldType = FieldType.Delimited;
-                parser.SetDelimiters(",");
-                // 1行目をスキップ
-                parser.ReadLine();
-                while (!parser.EndOfData)
-                {
-                    string line = parser.ReadLine();
 
-                    // CSVファイルの行をUTF-16に変換せずにそのままSplit関数で分割
-                    string[] columns = parser.ReadFields();
-                    string[] values=new string[columns.Length];
-                    for (int i=0; i<columns.Length;i++)
+
+                // 1行目をチェックしてSBIかJCBか判定
+                string[] row1= parser.ReadLine().Split(',');
+                if (row1[0] == "\"1\"")
+                {
+                    //SBIパターン
+                    parser.TextFieldType = FieldType.Delimited;
+                    parser.SetDelimiters(",");
+                    while (!parser.EndOfData)
                     {
-                        string utf16Value =columns[i];
-                        values[i]= utf16Value;
+                        // CSVファイルの行をUTF-16に変換せずにそのままSplit関数で分割
+                        string[] columns = parser.ReadFields();
+                        string[] values = new string[columns.Length];
+                        for (int i = 0; i < columns.Length; i++)
+                        {
+                            string utf16Value = columns[i];
+                            values[i] = utf16Value;
+                        }
+
+                        // 特定の列の項目をリストに追加
+                        Row_Meisai row = new Row_Meisai();
+                        row.Date = values[1].Trim('"');
+                        row.Detail = values[2].Trim('"');
+                        row.Price = values[4].Trim('"');
+                        row.Category = Check_Category(row.Detail);
+
+                        meisaiList.Add(row);
+                    }
+                }
+                else if (row1[0] == "\"\"")
+                {
+                    using (StreamReader sr = new StreamReader(textBox2.Text))
+                    {
+                        //JCBパターン
+                        //1~6行目をスキップ
+                        for (int i = 0; i < 6; i++)
+                        {
+                            sr.ReadLine();
+                        }
+                        while (!sr.EndOfStream)
+                        {
+                            string line = sr.ReadLine();
+                            string[] values = line.Split(','); // カンマ(,)で項目を区切る
+
+                            // 特定の列の項目をリストに追加
+                            Row_Meisai row = new Row_Meisai();
+                            row.Date = values[2].Trim('"');
+                            row.Detail = values[3].Trim('"');
+                            row.Price = values[4].Trim('"');
+                            row.Category = Check_Category(row.Detail);
+
+                            meisaiList.Add(row);
+                        }
                     }
 
-                    // 特定の列の項目をリストに追加
-                    Row_Meisai row = new Row_Meisai();
-                    row.Date = values[1].Trim('"');
-                    row.Detail = values[2].Trim('"');
-                    row.Price = values[4].Trim('"');
-                    row.Category = Check_Category(row.Detail);
-
-                    meisaiList.Add(row);
                 }
 
-                //JCBパターン（※SBIとはIFでつなげる）
             }
 
 
@@ -108,6 +147,12 @@ namespace Expenses
             // 指定した月以外のデータを削除
             string targetMonth = DateTime.Now.Year.ToString() + "/" + MonthsComboBox.Text;
             meisaiList.RemoveAll(m => !m.Date.Contains(targetMonth));
+
+            foreach(Row_Meisai meisai in meisaiList)
+            {
+                log += Check_Pair(meisai.Category) + " ： " + meisai.Detail + Environment.NewLine;
+            }
+            logTextBox.Text = log;
 
             //エクセル開いておく
 
@@ -213,6 +258,19 @@ namespace Expenses
             }
 
             return true;
+        }
+
+        private string Check_Pair(int category)
+        {
+            if (CategoryPairs.TryGetValue(category, out string value))
+            {
+                return value;
+            }
+            else
+            {
+                // 存在しない数値が指定された場合の処理
+                return "不明な支出";
+            }
         }
     }
 }

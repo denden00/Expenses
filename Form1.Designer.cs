@@ -38,7 +38,7 @@
             this.SelectButton1 = new System.Windows.Forms.Button();
             this.SelectButton2 = new System.Windows.Forms.Button();
             this.ErrorMessage = new System.Windows.Forms.Label();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.logTextBox = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // InputMeisai
@@ -148,22 +148,21 @@
             this.ErrorMessage.Text = "エラーメッセージ";
             this.ErrorMessage.Visible = false;
             // 
-            // richTextBox1
+            // logTextBox
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(36, 211);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.richTextBox1.Size = new System.Drawing.Size(417, 233);
-            this.richTextBox1.TabIndex = 6;
-            this.richTextBox1.Text = "";
+            this.logTextBox.Location = new System.Drawing.Point(36, 211);
+            this.logTextBox.Name = "logTextBox";
+            this.logTextBox.ReadOnly = true;
+            this.logTextBox.Size = new System.Drawing.Size(417, 233);
+            this.logTextBox.TabIndex = 6;
+            this.logTextBox.Text = "";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(474, 469);
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.ErrorMessage);
             this.Controls.Add(this.SelectButton2);
             this.Controls.Add(this.SelectButton1);
@@ -193,7 +192,7 @@
         private System.Windows.Forms.Button SelectButton1;
         private System.Windows.Forms.Button SelectButton2;
         private System.Windows.Forms.Label ErrorMessage;
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox logTextBox;
     }
 }
 
