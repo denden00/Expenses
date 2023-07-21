@@ -30,7 +30,6 @@
         {
             this.InputMeisai = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.label1 = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -39,16 +38,18 @@
             this.SelectButton1 = new System.Windows.Forms.Button();
             this.SelectButton2 = new System.Windows.Forms.Button();
             this.ErrorMessage = new System.Windows.Forms.Label();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // InputMeisai
             // 
+            this.InputMeisai.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.InputMeisai.Location = new System.Drawing.Point(34, 164);
             this.InputMeisai.Name = "InputMeisai";
-            this.InputMeisai.Size = new System.Drawing.Size(75, 23);
+            this.InputMeisai.Size = new System.Drawing.Size(92, 31);
             this.InputMeisai.TabIndex = 0;
             this.InputMeisai.Text = "取り込み";
-            this.InputMeisai.UseVisualStyleBackColor = true;
+            this.InputMeisai.UseVisualStyleBackColor = false;
             this.InputMeisai.Click += new System.EventHandler(this.InputMeisai_Click);
             // 
             // textBox1
@@ -57,10 +58,6 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(329, 19);
             this.textBox1.TabIndex = 1;
-            // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "openFileDialog1";
             // 
             // label1
             // 
@@ -144,18 +141,29 @@
             this.ErrorMessage.AutoSize = true;
             this.ErrorMessage.Font = new System.Drawing.Font("MS UI Gothic", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.ErrorMessage.ForeColor = System.Drawing.Color.Red;
-            this.ErrorMessage.Location = new System.Drawing.Point(132, 164);
+            this.ErrorMessage.Location = new System.Drawing.Point(148, 164);
             this.ErrorMessage.Name = "ErrorMessage";
             this.ErrorMessage.Size = new System.Drawing.Size(142, 22);
             this.ErrorMessage.TabIndex = 5;
             this.ErrorMessage.Text = "エラーメッセージ";
             this.ErrorMessage.Visible = false;
             // 
+            // richTextBox1
+            // 
+            this.richTextBox1.Location = new System.Drawing.Point(36, 211);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.ReadOnly = true;
+            this.richTextBox1.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+            this.richTextBox1.Size = new System.Drawing.Size(417, 233);
+            this.richTextBox1.TabIndex = 6;
+            this.richTextBox1.Text = "";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(474, 209);
+            this.ClientSize = new System.Drawing.Size(474, 469);
+            this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.ErrorMessage);
             this.Controls.Add(this.SelectButton2);
             this.Controls.Add(this.SelectButton1);
@@ -177,7 +185,6 @@
 
         private System.Windows.Forms.Button InputMeisai;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label label2;
@@ -186,6 +193,7 @@
         private System.Windows.Forms.Button SelectButton1;
         private System.Windows.Forms.Button SelectButton2;
         private System.Windows.Forms.Label ErrorMessage;
+        private System.Windows.Forms.RichTextBox richTextBox1;
     }
 }
 
