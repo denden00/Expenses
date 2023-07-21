@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Office.Interop.Excel;
+using Microsoft.VisualBasic.FileIO;
 
 namespace Expenses
 {
@@ -47,6 +48,11 @@ namespace Expenses
             }
         }
 
+        /// <summary>
+        /// 明細取り込みボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void InputMeisai_Click(object sender, EventArgs e)
         {
             ErrorMessage.Visible = false;
@@ -59,17 +65,29 @@ namespace Expenses
 
             List<Row_Meisai> meisaiList = new List<Row_Meisai>(); // 列の値を格納するリスト
             //csv抽出
-            using (StreamReader sr = new StreamReader(textBox2.Text))
+            using (var inputFileStream = new FileStream(textBox2.Text, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (TextFieldParser parser = new TextFieldParser(inputFileStream, Encoding.GetEncoding("Shift_JIS")))
+
             {
                 //ここでSBIかJCBかの判定を行う　↓はSBIのパターン
 
                 //SBIパターン
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
                 // 1行目をスキップ
-                sr.ReadLine();
-                while (!sr.EndOfStream)
+                parser.ReadLine();
+                while (!parser.EndOfData)
                 {
-                    string line = sr.ReadLine();
-                    string[] values = line.Split(','); // カンマ(,)で項目を区切る
+                    string line = parser.ReadLine();
+
+                    // CSVファイルの行をUTF-16に変換せずにそのままSplit関数で分割
+                    string[] columns = parser.ReadFields();
+                    string[] values=new string[columns.Length];
+                    for (int i=0; i<columns.Length;i++)
+                    {
+                        string utf16Value =columns[i];
+                        values[i]= utf16Value;
+                    }
 
                     // 特定の列の項目をリストに追加
                     Row_Meisai row = new Row_Meisai();
