@@ -67,97 +67,108 @@ namespace Expenses
             string log="";
             ErrorMessage.Visible = false;
 
-            if (!(Check_Input()))
+            try
             {
-                ErrorMessage.Visible=true;
-                return;
-            }
 
-            List<Row_Meisai> meisaiList = new List<Row_Meisai>(); // 列の値を格納するリスト
-            //csv抽出
-            using (var inputFileStream = new FileStream(textBox2.Text, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (TextFieldParser parser = new TextFieldParser(inputFileStream, Encoding.GetEncoding("Shift_JIS")))
-
-            {
-                //ここでSBIかJCBかの判定を行う　↓はSBIのパターン
-
-
-
-                // 1行目をチェックしてSBIかJCBか判定
-                string[] row1= parser.ReadLine().Split(',');
-                if (row1[0] == "\"1\"")
+                //入力チェック
+                if (!(Check_Input()))
                 {
-                    //SBIパターン
-                    parser.TextFieldType = FieldType.Delimited;
-                    parser.SetDelimiters(",");
-                    while (!parser.EndOfData)
-                    {
-                        // CSVファイルの行をUTF-16に変換せずにそのままSplit関数で分割
-                        string[] columns = parser.ReadFields();
-                        string[] values = new string[columns.Length];
-                        for (int i = 0; i < columns.Length; i++)
-                        {
-                            string utf16Value = columns[i];
-                            values[i] = utf16Value;
-                        }
-
-                        // 特定の列の項目をリストに追加
-                        Row_Meisai row = new Row_Meisai();
-                        row.Date = values[1].Trim('"');
-                        row.Detail = values[2].Trim('"');
-                        row.Price = values[4].Trim('"');
-                        row.Category = Check_Category(row.Detail);
-
-                        meisaiList.Add(row);
-                    }
+                    ErrorMessage.Visible = true;
+                    return;
                 }
-                else if (row1[0] == "\"\"")
+
+                List<Row_Meisai> meisaiList = new List<Row_Meisai>(); // 列の値を格納するリスト
+                                                                      //csv抽出
+                using (var inputFileStream = new FileStream(textBox2.Text, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (TextFieldParser parser = new TextFieldParser(inputFileStream, Encoding.GetEncoding("Shift_JIS")))
+
                 {
-                    using (StreamReader sr = new StreamReader(textBox2.Text))
+                    //ここでSBIかJCBかの判定を行う　↓はSBIのパターン
+
+
+
+                    // 1行目をチェックしてSBIかJCBか判定
+                    string[] row1 = parser.ReadLine().Split(',');
+                    if (row1[0] == "\"1\"")
                     {
-                        //JCBパターン
-                        //1~6行目をスキップ
-                        for (int i = 0; i < 6; i++)
+                        //SBIパターン
+                        parser.TextFieldType = FieldType.Delimited;
+                        parser.SetDelimiters(",");
+                        while (!parser.EndOfData)
                         {
-                            sr.ReadLine();
-                        }
-                        while (!sr.EndOfStream)
-                        {
-                            string line = sr.ReadLine();
-                            string[] values = line.Split(','); // カンマ(,)で項目を区切る
+                            // CSVファイルの行をUTF-16に変換せずにそのままSplit関数で分割
+                            string[] columns = parser.ReadFields();
+                            string[] values = new string[columns.Length];
+                            for (int i = 0; i < columns.Length; i++)
+                            {
+                                string utf16Value = columns[i];
+                                values[i] = utf16Value;
+                            }
 
                             // 特定の列の項目をリストに追加
                             Row_Meisai row = new Row_Meisai();
-                            row.Date = values[2].Trim('"');
-                            row.Detail = values[3].Trim('"');
+                            row.Date = values[1].Trim('"');
+                            row.Detail = values[2].Trim('"');
                             row.Price = values[4].Trim('"');
                             row.Category = Check_Category(row.Detail);
 
                             meisaiList.Add(row);
                         }
                     }
+                    else if (row1[0] == "\"\"")
+                    {
+                        using (StreamReader sr = new StreamReader(textBox2.Text))
+                        {
+                            //JCBパターン
+                            //1~6行目をスキップ
+                            for (int i = 0; i < 6; i++)
+                            {
+                                sr.ReadLine();
+                            }
+                            while (!sr.EndOfStream)
+                            {
+                                string line = sr.ReadLine();
+                                string[] values = line.Split(','); // カンマ(,)で項目を区切る
+
+                                // 特定の列の項目をリストに追加
+                                Row_Meisai row = new Row_Meisai();
+                                row.Date = values[2].Trim('"');
+                                row.Detail = values[3].Trim('"');
+                                row.Price = values[4].Trim('"');
+                                row.Category = Check_Category(row.Detail);
+
+                                meisaiList.Add(row);
+                            }
+                        }
+
+                    }
 
                 }
 
+
+                // 日付の早い順にソート
+                meisaiList = meisaiList.OrderBy(x => x.Date).ToList();
+                // 指定した月以外のデータを削除
+                string targetMonth = DateTime.Now.Year.ToString() + "/" + MonthsComboBox.Text;
+                meisaiList.RemoveAll(m => !m.Date.Contains(targetMonth));
+
+                foreach (Row_Meisai meisai in meisaiList)
+                {
+                    log += Check_Pair(meisai.Category) + " ： " + meisai.Detail + Environment.NewLine;
+                }
+                logTextBox.Text = log;
+
+                //エクセル開いておく
+
+                //meisaiList
             }
-
-
-            // 日付の早い順にソート
-            meisaiList=meisaiList.OrderBy(x => x.Date).ToList();
-            // 指定した月以外のデータを削除
-            string targetMonth = DateTime.Now.Year.ToString() + "/" + MonthsComboBox.Text;
-            meisaiList.RemoveAll(m => !m.Date.Contains(targetMonth));
-
-            foreach(Row_Meisai meisai in meisaiList)
+            catch (Exception ex)
             {
-                log += Check_Pair(meisai.Category) + " ： " + meisai.Detail + Environment.NewLine;
+                ErrorMessage.Text = "何らかのエラーが発生しました。";
+                ErrorMessage.Visible = true;
+                log= ex.Message + Environment.NewLine + ex.StackTrace;
+                logTextBox.Text = log;
             }
-            logTextBox.Text = log;
-
-            //エクセル開いておく
-
-            //meisaiList
-
         }
 
         private int Check_Category(string detail)
@@ -224,6 +235,10 @@ namespace Expenses
                     return 99;
         }
 
+        /// <summary>
+        /// 入力欄に情報が入力されているかチェック、NGであればエラーメッセージを表示し処理終了
+        /// </summary>
+        /// <returns></returns>
         private bool Check_Input()
         {
             //月チェック
