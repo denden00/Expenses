@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.InputMeisai = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.ExpensesPathTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.MeisaiPathTextBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.MonthsComboBox = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -43,7 +43,7 @@
             // 
             // InputMeisai
             // 
-            this.InputMeisai.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.InputMeisai.BackColor = System.Drawing.Color.SkyBlue;
             this.InputMeisai.Location = new System.Drawing.Point(34, 164);
             this.InputMeisai.Name = "InputMeisai";
             this.InputMeisai.Size = new System.Drawing.Size(92, 31);
@@ -52,28 +52,28 @@
             this.InputMeisai.UseVisualStyleBackColor = false;
             this.InputMeisai.Click += new System.EventHandler(this.InputMeisai_Click);
             // 
-            // textBox1
+            // ExpensesPathTextBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(34, 75);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(329, 19);
-            this.textBox1.TabIndex = 1;
+            this.ExpensesPathTextBox.Location = new System.Drawing.Point(34, 75);
+            this.ExpensesPathTextBox.Name = "ExpensesPathTextBox";
+            this.ExpensesPathTextBox.Size = new System.Drawing.Size(398, 19);
+            this.ExpensesPathTextBox.TabIndex = 1;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(34, 57);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(93, 12);
+            this.label1.Size = new System.Drawing.Size(75, 12);
             this.label1.TabIndex = 2;
-            this.label1.Text = "貼り付け先ファイル";
+            this.label1.Text = "家計簿ファイル";
             // 
-            // textBox2
+            // MeisaiPathTextBox
             // 
-            this.textBox2.Location = new System.Drawing.Point(34, 127);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(329, 19);
-            this.textBox2.TabIndex = 1;
+            this.MeisaiPathTextBox.Location = new System.Drawing.Point(34, 127);
+            this.MeisaiPathTextBox.Name = "MeisaiPathTextBox";
+            this.MeisaiPathTextBox.Size = new System.Drawing.Size(398, 19);
+            this.MeisaiPathTextBox.TabIndex = 1;
             // 
             // label2
             // 
@@ -118,7 +118,7 @@
             // 
             // SelectButton1
             // 
-            this.SelectButton1.Location = new System.Drawing.Point(378, 75);
+            this.SelectButton1.Location = new System.Drawing.Point(445, 75);
             this.SelectButton1.Name = "SelectButton1";
             this.SelectButton1.Size = new System.Drawing.Size(75, 23);
             this.SelectButton1.TabIndex = 4;
@@ -128,7 +128,7 @@
             // 
             // SelectButton2
             // 
-            this.SelectButton2.Location = new System.Drawing.Point(378, 127);
+            this.SelectButton2.Location = new System.Drawing.Point(445, 127);
             this.SelectButton2.Name = "SelectButton2";
             this.SelectButton2.Size = new System.Drawing.Size(75, 23);
             this.SelectButton2.TabIndex = 4;
@@ -153,15 +153,16 @@
             this.logTextBox.Location = new System.Drawing.Point(36, 211);
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.ReadOnly = true;
-            this.logTextBox.Size = new System.Drawing.Size(417, 233);
+            this.logTextBox.Size = new System.Drawing.Size(417, 335);
             this.logTextBox.TabIndex = 6;
-            this.logTextBox.Text = "";
+            this.logTextBox.Text = "使い方\n①”月選択”から月を選んでください\n②家計簿ファイルを選択してください\n③取り込みたい明細ファイルを選択してください\n④”取り込み”ボタンを押してください" +
+    "";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(474, 469);
+            this.ClientSize = new System.Drawing.Size(562, 583);
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.ErrorMessage);
             this.Controls.Add(this.SelectButton2);
@@ -170,8 +171,8 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.MeisaiPathTextBox);
+            this.Controls.Add(this.ExpensesPathTextBox);
             this.Controls.Add(this.InputMeisai);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -183,9 +184,9 @@
         #endregion
 
         private System.Windows.Forms.Button InputMeisai;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox ExpensesPathTextBox;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox MeisaiPathTextBox;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox MonthsComboBox;
         private System.Windows.Forms.Label label3;

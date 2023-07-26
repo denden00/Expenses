@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
-using Microsoft.Office.Interop.Excel;
+using Excel=Microsoft.Office.Interop.Excel;
 using Microsoft.VisualBasic.FileIO;
+using Microsoft.VisualBasic.Logging;
+using Microsoft.Office.Interop.Excel;
 
 namespace Expenses
 {
@@ -25,7 +27,7 @@ namespace Expenses
         public readonly Dictionary<int,string> CategoryPairs = new Dictionary<int, string>
         {
             {0, "食費" },
-            { 1, "日用品" },
+            { 1, "日用品費" },
             { 2, "携帯代" },
             { 3, "電気代" },
             { 4, "交通費" },
@@ -43,7 +45,7 @@ namespace Expenses
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                textBox1.Text = openFileDialog.FileName;
+                ExpensesPathTextBox.Text = openFileDialog.FileName;
             }
         }
 
@@ -53,7 +55,7 @@ namespace Expenses
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                textBox2.Text = openFileDialog.FileName;
+                MeisaiPathTextBox.Text = openFileDialog.FileName;
             }
         }
 
@@ -64,6 +66,10 @@ namespace Expenses
         /// <param name="e"></param>
         private void InputMeisai_Click(object sender, EventArgs e)
         {
+            //処理中はボタンをグレーアウト＆無効化
+            InputMeisai.BackColor = Color.Gray;
+            InputMeisai.Enabled = false;
+
             string log="";
             ErrorMessage.Visible = false;
 
@@ -79,7 +85,7 @@ namespace Expenses
 
                 List<Row_Meisai> meisaiList = new List<Row_Meisai>(); // 列の値を格納するリスト
                                                                       //csv抽出
-                using (var inputFileStream = new FileStream(textBox2.Text, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var inputFileStream = new FileStream(MeisaiPathTextBox.Text, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (TextFieldParser parser = new TextFieldParser(inputFileStream, Encoding.GetEncoding("Shift_JIS")))
 
                 {
@@ -117,7 +123,7 @@ namespace Expenses
                     }
                     else if (row1[0] == "\"\"")
                     {
-                        using (StreamReader sr = new StreamReader(textBox2.Text))
+                        using (StreamReader sr = new StreamReader(MeisaiPathTextBox.Text))
                         {
                             //JCBパターン
                             //1~6行目をスキップ
@@ -128,13 +134,14 @@ namespace Expenses
                             while (!sr.EndOfStream)
                             {
                                 string line = sr.ReadLine();
-                                string[] values = line.Split(','); // カンマ(,)で項目を区切る
+                                //string[] values = line.Split(','); // カンマ(,)で項目を区切る
+                                string[] values = line.Split(new string[] {"\",\""}, StringSplitOptions.None);
 
                                 // 特定の列の項目をリストに追加
                                 Row_Meisai row = new Row_Meisai();
-                                row.Date = values[2].Trim('"');
-                                row.Detail = values[3].Trim('"');
-                                row.Price = values[4].Trim('"');
+                                row.Date = values[2].Trim();
+                                row.Detail = values[3].Trim();
+                                row.Price = values[4].Trim().Replace(",",""); //5,000などに対処
                                 row.Category = Check_Category(row.Detail);
 
                                 meisaiList.Add(row);
@@ -152,15 +159,27 @@ namespace Expenses
                 string targetMonth = DateTime.Now.Year.ToString() + "/" + MonthsComboBox.Text;
                 meisaiList.RemoveAll(m => !m.Date.Contains(targetMonth));
 
+                if(meisaiList.Count == 0)
+                {
+                    ErrorMessage.Text = "該当月の明細がありません。";
+                    ErrorMessage.Visible = true;
+                    return;
+                }
+
+                //エクセル処理
+                Post_Excel(meisaiList);
+                log += "家計簿への書き込みが完了しました。" + Environment.NewLine;
+
                 foreach (Row_Meisai meisai in meisaiList)
                 {
                     log += Check_Pair(meisai.Category) + " ： " + meisai.Detail + Environment.NewLine;
                 }
                 logTextBox.Text = log;
 
-                //エクセル開いておく
 
-                //meisaiList
+                //処理完了後はボタンを戻す
+                InputMeisai.BackColor = Color.SkyBlue;
+                InputMeisai.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -168,6 +187,106 @@ namespace Expenses
                 ErrorMessage.Visible = true;
                 log= ex.Message + Environment.NewLine + ex.StackTrace;
                 logTextBox.Text = log;
+            }
+        }
+
+        private void Post_Excel(List<Row_Meisai> meisaiList)
+        {
+            // エクセルアプリケーションの起動
+            Excel.Application excelApp = new Excel.Application();
+            // ワークブックを開く
+            Excel.Workbook workbook = excelApp.Workbooks.Open(ExpensesPathTextBox.Text);
+            // ワークシートを開く
+            Excel.Worksheet worksheet=new Excel.Worksheet();
+
+            try
+            {
+                //明細行分だけ繰り返し
+                foreach (Row_Meisai meisai in meisaiList)
+                {
+                    // ワークシートを名前で指定
+                    string sheetName = Check_Pair(meisai.Category); // ワークシートの名前
+                    worksheet = (Excel.Worksheet)workbook.Sheets[sheetName];
+
+                    // 特定の文字列を検索するメソッドを呼び出し、該当するセルを見つける
+                    Excel.Range searchRange = worksheet.UsedRange; // 検索範囲を全体の範囲に設定（例：A1から最終セルまで）
+                    string searchString = "日付(" + int.Parse(MonthsComboBox.Text) + "月)"; // 検索する文字列
+                    Excel.Range resultCell = FindCellWithText(searchRange, searchString);
+
+                    if (resultCell != null)
+                    {
+                        // 該当するセルの1つ下のセルが空白でない場合、空白のセルを見つけるまで繰り返す
+                        Excel.Range dateCell = worksheet.Cells[resultCell.Row + 1, resultCell.Column];
+                        while (!string.IsNullOrEmpty(dateCell.Value?.ToString()))
+                        {
+                            resultCell = dateCell;
+                            dateCell = worksheet.Cells[resultCell.Row + 1, resultCell.Column];
+                        }
+
+                        // 日付セルにデータを入力する
+                        dateCell.Value = meisai.Date.Trim().Remove(0, 5);
+
+                        // dateCellの1つ右のセル(明細)を入力する
+                        Excel.Range meisaiCell = worksheet.Cells[dateCell.Row, dateCell.Column + 1];
+                        meisaiCell.Value = meisai.Detail;
+
+                        // dateCellの2つ右のセル(金額)を入力する
+                        Excel.Range priceCell = worksheet.Cells[dateCell.Row, dateCell.Column + 2];
+                        priceCell.Value = meisai.Price;
+                    }
+                    else
+                    {
+                        Console.WriteLine("指定した文字列が見つかりませんでした。");
+                    }
+                }
+
+                // ワークブックを保存
+                workbook.Save();
+
+                // ワークブックを閉じる
+                workbook.Close();
+
+                // エクセルアプリケーションを終了
+                excelApp.Quit();
+            }
+            finally
+            {
+                // 使用したオブジェクトを解放
+                ReleaseObject(worksheet);
+                ReleaseObject(workbook);
+                ReleaseObject(excelApp);
+            }
+
+        }
+
+        static Excel.Range FindCellWithText(Excel.Range searchRange, string searchText)
+        {
+            foreach (Excel.Range cell in searchRange)
+            {
+                if (cell.Value != null && cell.Value.ToString() == searchText)
+                {
+                    return cell;
+                }
+            }
+
+            return null;
+        }
+
+        static void ReleaseObject(object obj)
+        {
+            try
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
+                obj = null;
+            }
+            catch (Exception ex)
+            {
+                obj = null;
+                Console.WriteLine("オブジェクトの解放に失敗しました: " + ex.ToString());
+            }
+            finally
+            {
+                GC.Collect();
             }
         }
 
@@ -248,25 +367,25 @@ namespace Expenses
                 return false;
             }
 
-            if (string.IsNullOrEmpty(textBox1.Text))
+            if (string.IsNullOrEmpty(ExpensesPathTextBox.Text))
             {
                 ErrorMessage.Text = "貼り付け先ファイルを選択してください";
                 return false;
             }
 
-            if (string.IsNullOrEmpty(textBox2.Text))
+            if (string.IsNullOrEmpty(MeisaiPathTextBox.Text))
             {
                 ErrorMessage.Text = "明細ファイルを選択してください";
                 return false;
             }
 
-            if (!(File.Exists(textBox1.Text)))
+            if (!(File.Exists(ExpensesPathTextBox.Text)))
             {
                 ErrorMessage.Text = "貼り付け先ファイルが存在しません";
                 return false;
             }
 
-            if (!(File.Exists(textBox2.Text)))
+            if (!(File.Exists(MeisaiPathTextBox.Text)))
             {
                 ErrorMessage.Text = "明細ファイルが存在しません";
                 return false;
