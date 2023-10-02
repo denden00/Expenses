@@ -23,6 +23,7 @@ namespace Expenses
         public readonly int KEITAIDAI = 2;
         public readonly int DENKIDAI = 3;
         public readonly int KOUTUUHI = 4;
+        public readonly int HOKENDAI = 5;
         public readonly int OTHER = 99;
         public readonly Dictionary<int,string> CategoryPairs = new Dictionary<int, string>
         {
@@ -31,6 +32,7 @@ namespace Expenses
             { 2, "携帯代" },
             { 3, "電気代" },
             { 4, "交通費" },
+            { 5, "保険代" },
             { 99, "その他" },
         };
 
@@ -42,6 +44,8 @@ namespace Expenses
         private void SelectButton1_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            //openFileDialog.InitialDirectory = "C:\\Programming\\PersonalProject\\Expenses\\src\\Documents\\家計簿"; //デバッグ用
+            openFileDialog.InitialDirectory = "C:\\Users\\Public\\Documents\\家計簿"; //本番用
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -52,6 +56,8 @@ namespace Expenses
         private void SelectButton2_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            //openFileDialog.InitialDirectory = "C:\\Programming\\PersonalProject\\Expenses\\src\\Documents\\家計簿\\明細"; //デバッグ用
+            openFileDialog.InitialDirectory = "C:\\Users\\Public\\Documents\\家計簿\\明細"; //本番用
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -290,7 +296,7 @@ namespace Expenses
         private int Check_Category(string detail)
         {
             // 正規表現パターンの配列を定義する
-            string[][] regexPatterns = new string[5][];
+            string[][] regexPatterns = new string[6][];
             //食費
             regexPatterns[0] = new string[]
             {
@@ -332,6 +338,12 @@ namespace Expenses
             regexPatterns[4] = new string[]
             {
             @"Ｓｕｉｃａ",       // 電車チャージ分
+            };
+            //保険代
+            regexPatterns[5] = new string[]
+            {
+            @"ﾊﾅｻｸｾｲﾒｲ",
+            @"ハナサクセイメイ",
             };
 
             int rows = regexPatterns.Length; // 行数を取得
