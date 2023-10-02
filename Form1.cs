@@ -66,9 +66,7 @@ namespace Expenses
         /// <param name="e"></param>
         private void InputMeisai_Click(object sender, EventArgs e)
         {
-            //処理中はボタンをグレーアウト＆無効化
-            InputMeisai.BackColor = Color.Gray;
-            InputMeisai.Enabled = false;
+            EnableOff_Button();
 
             string log="";
             ErrorMessage.Visible = false;
@@ -80,6 +78,7 @@ namespace Expenses
                 if (!(Check_Input()))
                 {
                     ErrorMessage.Visible = true;
+                    EnableOn_Button();
                     return;
                 }
 
@@ -163,6 +162,7 @@ namespace Expenses
                 {
                     ErrorMessage.Text = "該当月の明細がありません。";
                     ErrorMessage.Visible = true;
+                    EnableOn_Button();
                     return;
                 }
 
@@ -176,10 +176,7 @@ namespace Expenses
                 }
                 logTextBox.Text = log;
 
-
-                //処理完了後はボタンを戻す
-                InputMeisai.BackColor = Color.SkyBlue;
-                InputMeisai.Enabled = true;
+                EnableOn_Button();
             }
             catch (Exception ex)
             {
@@ -405,6 +402,20 @@ namespace Expenses
                 // 存在しない数値が指定された場合の処理
                 return "不明な支出";
             }
+        }
+
+        private void EnableOn_Button()
+        {
+            //処理完了後はボタンを戻す
+            InputMeisai.BackColor = Color.SkyBlue;
+            InputMeisai.Enabled = true;
+        }
+
+        private void EnableOff_Button() 
+        {
+            //処理中はボタンをグレーアウト＆無効化
+            InputMeisai.BackColor = Color.Gray;
+            InputMeisai.Enabled = false;
         }
     }
 }
