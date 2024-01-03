@@ -161,7 +161,17 @@ namespace Expenses
                 // 日付の早い順にソート
                 meisaiList = meisaiList.OrderBy(x => x.Date).ToList();
                 // 指定した月以外のデータを削除
-                string targetMonth = DateTime.Now.Year.ToString() + "/" + MonthsComboBox.Text;
+                string targetYear;
+                if (MonthsComboBox.Text == "12")
+                {
+                    targetYear = (DateTime.Now.Year - 1).ToString();
+                }
+                else
+                {
+                    targetYear = DateTime.Now.Year.ToString();
+                }
+
+                string targetMonth = targetYear + "/" + MonthsComboBox.Text;
                 meisaiList.RemoveAll(m => !m.Date.Contains(targetMonth));
 
                 if(meisaiList.Count == 0)
