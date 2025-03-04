@@ -33,7 +33,8 @@ namespace Expenses
             { 3, "電気代" },
             { 4, "交通費" },
             { 5, "保険代" },
-            { 99, "その他" },
+			{ 6, "特別費" },
+			{ 99, "その他" },
         };
 
         public Form1()
@@ -306,7 +307,7 @@ namespace Expenses
         private int Check_Category(string detail)
         {
             // 正規表現パターンの配列を定義する
-            string[][] regexPatterns = new string[6][];
+            string[][] regexPatterns = new string[7][];
             //食費
             regexPatterns[0] = new string[]
             {
@@ -321,7 +322,8 @@ namespace Expenses
             @"ﾊﾞﾛ-", // Ｖドラッグ 
             @"ﾌｴﾙﾅ",                //
             @"フェルナ",                //
-
+            @"ﾏﾙｽｱﾝｼﾞｮｳ", // マルス
+            @"ロ―ソン", // ローソン 
 
             };
             //日用品
@@ -343,6 +345,7 @@ namespace Expenses
             @"ＤＣＭ", // 
             @"DCM", //
             @"ﾃﾞｲ-ｼ-ｴﾑ", // 
+            @"ｽｷﾞﾔﾂｷﾖｸ", // 
 
             };
             //携帯
@@ -371,8 +374,16 @@ namespace Expenses
             @"ハナサクセイメイ",
             @"ﾈｵﾌｱ-ｽﾄｾｲﾒｲ", // 
             };
+			//特別費
+			regexPatterns[6] = new string[]
+			{
+			@"ﾊﾁｳｲﾒﾝ",
+			@"ﾅﾁｭﾗﾙﾃｯｸ",
+			@"ﾊﾅﾔﾂｷﾖｸ", // 
+			@"ｵﾘﾋﾒｼｶ",
+			};
 
-            int rows = regexPatterns.Length; // 行数を取得
+			int rows = regexPatterns.Length; // 行数を取得
             
             for (int i = 0; i < rows; i++)
             {
